@@ -1,26 +1,23 @@
 import java.util.Scanner;
 
-public class CoffeeMachine {
-    public int cupsofCoffee = 0;
-    public int totalMlWaterinCoffeeMachine = 6200;
-    public int totalMlMilkinCoffeeMachine = 1500;
-    public int totalGCoffeeBeansinCoffeeMachine = 465;
-    public int totalAmountDisposableCoffeecups = 30;
-    public int amountCoffeeCupsWanted = 0;
+class CoffeeMachine {
+    Stock stock = new Stock();
+    Coffee coffee = new Coffee();
 
-    public int totalMoneyinCoffeeMachine = 0;
+    private int cupsofCoffee = 0;
 
-    public int totalCupsWater = totalMlWaterinCoffeeMachine / 200;
-    public int totalCupsMilk = totalMlMilkinCoffeeMachine / 50;
-    public int totalCupsCoffeeBeans = totalGCoffeeBeansinCoffeeMachine / 15;
-    public int totalCupsCoffee = 0;
+    private int totalCupsWater = stock.milliLiterWater / 200;
+    private int totalCupsMilk = stock.milliLiterMilk / 50;
+    private int totalCupsCoffeeBeans = stock.gramsOfCoffeeBeans / 15;
+    private int totalCupsCoffee = 0;
 
-    public Scanner scanner = new Scanner(System.in);
+    private Scanner scanner = new Scanner(System.in);
 
     public void makeCoffee() throws InterruptedException {
         Scanner scanner = new Scanner(System.in);
-        String action = null;
-        while (action != "exit") {
+        String action = " ";
+        assert false;
+        while (!action.equals("exit")) {
             System.out.println("action (buy, fill, take, remaining, exit):");
             action = scanner.nextLine();
             reCalculateRemainingCoffeeCups();
@@ -29,7 +26,7 @@ public class CoffeeMachine {
                     buyCoffee();
                     break;
                 case "fill":
-                    fillCoffeeMachine();
+                    stock.fillCoffeeMachine();
                     break;
                 case "remaining":
                     calculateCoffeeRemaining();
@@ -42,50 +39,30 @@ public class CoffeeMachine {
     private void buyCoffee() throws InterruptedException {
         System.out.println("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino, back - to main menu:");
         int sortOfCoffee = Integer.parseInt(scanner.nextLine());
-        String sortOfCoffeeString = null;
+        String sortOfCoffeeString = "coffee";
         System.out.println("How many cups of coffee would you like? max " + totalCupsCoffee);
-        amountCoffeeCupsWanted = Integer.parseInt(scanner.nextLine());
-        totalAmountDisposableCoffeecups += -amountCoffeeCupsWanted;
+        stock.amountCoffeeCupsWanted = Integer.parseInt(scanner.nextLine());
+        stock.amountCoffeeCups += -stock.amountCoffeeCupsWanted;
         switch (sortOfCoffee) {
             case 1:
-                totalMlWaterinCoffeeMachine += - 250*amountCoffeeCupsWanted;
-                totalGCoffeeBeansinCoffeeMachine += - 16*amountCoffeeCupsWanted;
-                totalMoneyinCoffeeMachine += 4*amountCoffeeCupsWanted;
-                sortOfCoffeeString = "Espresso";
-                informUserAboutCoffee(sortOfCoffeeString);
+                stock.coffeeChoosen = new Espresso();
+                stock.takeStockCoffeeMachine();
+                informUserAboutCoffee(stock.coffeeChoosen.sortOfCoffeeString);
                 break;
             case 2:
-                totalMlWaterinCoffeeMachine += - 350*amountCoffeeCupsWanted;
-                totalMlMilkinCoffeeMachine += - 75*amountCoffeeCupsWanted;
-                totalGCoffeeBeansinCoffeeMachine += - 20*amountCoffeeCupsWanted;
-                totalMoneyinCoffeeMachine += 7*amountCoffeeCupsWanted;
-                sortOfCoffeeString = "Latte";
-                informUserAboutCoffee(sortOfCoffeeString);
+                stock.coffeeChoosen = new Latte();
+                stock.takeStockCoffeeMachine();
+                informUserAboutCoffee(stock.coffeeChoosen.sortOfCoffeeString);
                 break;
             case 3:
-                totalMlWaterinCoffeeMachine += - 200*amountCoffeeCupsWanted;
-                totalMlMilkinCoffeeMachine += - 100*amountCoffeeCupsWanted;
-                totalGCoffeeBeansinCoffeeMachine += - 12*amountCoffeeCupsWanted;
-                totalMoneyinCoffeeMachine += 6*amountCoffeeCupsWanted;
-                sortOfCoffeeString = "Cappuccino";
-                informUserAboutCoffee(sortOfCoffeeString);
+                stock.coffeeChoosen = new Cappuccino();
+                stock.takeStockCoffeeMachine();
+                informUserAboutCoffee(stock.coffeeChoosen.sortOfCoffeeString);
                 break;
         }
+        reCalculateRemainingAmountCoffee();
     }
-    private void fillCoffeeMachine () {
-        System.out.println("Write how many ml of water do you want to add: ");
-        int mlWatertoAddCoffeeMachine = Integer.parseInt(scanner.nextLine());
-        totalMlWaterinCoffeeMachine += mlWatertoAddCoffeeMachine;
-        System.out.println("Write how many ml of milk do you want to add: ");
-        int mlMilktoAddCoffeeMachine = Integer.parseInt(scanner.nextLine());
-        totalMlMilkinCoffeeMachine += mlMilktoAddCoffeeMachine;
-        System.out.println("Write how many grams of coffee beans do you want to add: ");
-        int gCoffeeBeanstoAddCoffeeMachine = Integer.parseInt(scanner.nextLine());
-        totalGCoffeeBeansinCoffeeMachine += gCoffeeBeanstoAddCoffeeMachine;
-        System.out.println("Write how many disposable cups of coffee do you want to add: ");
-        int disposableCupstoAddCoffeeMachine = Integer.parseInt(scanner.nextLine());
-        totalAmountDisposableCoffeecups += disposableCupstoAddCoffeeMachine;
-    }
+
     private void calculateCoffeeRemaining () {
         if (totalCupsWater == totalCupsMilk && totalCupsCoffeeBeans == totalCupsWater) {
             totalCupsCoffee = totalCupsWater;
@@ -103,10 +80,11 @@ public class CoffeeMachine {
                     totalCupsCoffee);
         }
         System.out.println("Total cups coffee remaining: " + totalCupsCoffee + ".\n" +
-                "Total ml water remaining: " + totalMlWaterinCoffeeMachine + "ml equal to " + totalCupsWater + " cups coffee.\n" +
-                "Total ml milk remaining: " + totalMlMilkinCoffeeMachine + "ml equal to " + totalCupsMilk + " cups of coffee.\n" +
-                "Total g coffee beans remaining: " + totalGCoffeeBeansinCoffeeMachine + "ml equal to " + totalCupsCoffeeBeans + " cups of coffee.\n" +
-                "Total disposable coffee cups remaining: " + totalAmountDisposableCoffeecups + ".");
+                "Total ml water remaining: " + stock.milliLiterWater + "ml equal to " + totalCupsWater + " cups coffee.\n" +
+                "Total ml milk remaining: " + stock.milliLiterMilk + "ml equal to " + totalCupsMilk + " cups of coffee.\n" +
+                "Total g coffee beans remaining: " + stock.gramsOfCoffeeBeans + "ml equal to " + totalCupsCoffeeBeans + " cups of coffee.\n" +
+                "Total disposable coffee cups remaining: " + stock.amountCoffeeCups + ".\n" +
+                "There's also a total of €" + stock.totalMoneyinCoffeeMachine + " inside the coffee machine.\n");
     }
 
     private void reCalculateRemainingCoffeeCups () {
@@ -119,8 +97,8 @@ public class CoffeeMachine {
         } else if (totalCupsMilk >= totalCupsCoffeeBeans && totalCupsWater >= totalCupsCoffeeBeans) {
             totalCupsCoffee = totalCupsCoffeeBeans;
         }
-        if (totalCupsCoffee > totalAmountDisposableCoffeecups) {
-            totalCupsCoffee = totalAmountDisposableCoffeecups;
+        if (totalCupsCoffee > stock.amountCoffeeCups) {
+            totalCupsCoffee = stock.amountCoffeeCups;
         }
     }
 
@@ -134,13 +112,12 @@ public class CoffeeMachine {
                 mlofMilk + "ml of milk\n" +
                 gofCoffeeBeans + "g of coffee beans");
         Thread.sleep(1000);
-        return;
     }
 
     private void informUserAboutCoffee(String sortOfCoffeeString) throws InterruptedException {
-        System.out.println("Starting to make " + amountCoffeeCupsWanted + " " + sortOfCoffeeString);
+        System.out.println("Starting to make " + stock.amountCoffeeCupsWanted + " " + sortOfCoffeeString);
         Thread.sleep(300);
-        System.out.println("Ginding coffee beans");
+        System.out.println("Grinding coffee beans");
         Thread.sleep(900);
         System.out.println("Boiling water");
         Thread.sleep(600);
@@ -151,13 +128,12 @@ public class CoffeeMachine {
         System.out.println("Pouring some milk into the cup");
         Thread.sleep(1800);
         System.out.println(sortOfCoffeeString + " is ready!");
-        return;
     }
 
     private void reCalculateRemainingAmountCoffee() {
-        totalCupsWater = totalMlWaterinCoffeeMachine / 200;
-        totalCupsMilk = totalMlMilkinCoffeeMachine / 50;
-        totalCupsCoffeeBeans = totalGCoffeeBeansinCoffeeMachine / 15;
+        totalCupsWater = stock.milliLiterWater / 200;
+        totalCupsMilk = stock.milliLiterMilk / 50;
+        totalCupsCoffeeBeans = stock.gramsOfCoffeeBeans / 15;
         reCalculateRemainingCoffeeCups();
     }
 }
